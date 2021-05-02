@@ -5,6 +5,7 @@ import {
   Container,
   Button,
   TextField,
+  CircularProgress,
 } from "@material-ui/core";
 import {
   isUsernameEmpty,
@@ -20,6 +21,7 @@ const User = (props) => {
   const [username, setUsername] = useState("");
   const [text, setText] = useState("");
   const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleInput = (e) => {
     e.preventDefault();
@@ -28,9 +30,11 @@ const User = (props) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setLoading(true);
     if (isUsernameEmpty(username)) {
       setText("Enter Username");
       setError(true);
+      setLoading(false);
       return;
     } else {
       setError(false);
@@ -39,6 +43,7 @@ const User = (props) => {
     if (!isOnline()) {
       setText("No internet connection");
       setError(true);
+      setLoading(false);
       return;
     } else {
       setError(false);
@@ -49,10 +54,12 @@ const User = (props) => {
       })
       .then((bool) => {
         if (bool) {
+          setLoading(false);
           props.history.push("/repository", { username });
         } else {
           setText("Invalid username");
           setError(true);
+          setLoading(false);
         }
       });
     // if (!proceed) {
@@ -94,6 +101,11 @@ const User = (props) => {
                 value={username}
                 onChange={handleInput}
               />
+              {loading && (
+                <Container className={classes.textField} maxWidth="sm" fixed>
+                  <CircularProgress color="primary" />
+                </Container>
+              )}
               <Container maxWidth="sm" fixed>
                 <Button
                   type="submit"
@@ -102,6 +114,7 @@ const User = (props) => {
                   color="primary"
                   size="large"
                   data-testid="submit-btn"
+                  disabled={loading}
                   onClick={handleSubmit}
                 >
                   Submit
